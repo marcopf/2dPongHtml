@@ -135,25 +135,104 @@ let 	date = new Date().getTime() / 1000;
 const 	targetFrameRate = 144; // Target frame rate (in FPS)
 const 	frameInterval = 1000 / targetFrameRate; // Interval in milliseconds between frames
 
+let leftPadleTInterval;
+let leftPadleBInterval;
+let leftControlTop = false;
+let leftControlBot = false;
+
+let rightPadleTInterval;
+let rightPadleBInterval;
+let rightControlTop = false;
+let rightControlBot = false;
+
 function getTimeHtml(){
 	document.querySelector("#display").innerHTML = `<span>Elapsed Time: ${Math.round(((new Date().getTime() / 1000) - date))}</span>`;
 }
 
 
 window.addEventListener("keydown", (e)=>{
-	let toAdd = padlelength;
-	
+	let toAdd = 3;
+	console.log(e.key, leftControlBot, leftControlTop)
 	if (e.key == " ")
 		ball.start();
-	if (e.key == "o" && (rightY - toAdd) >= canvas.offsetTop - padlelength)
-		rightY -= toAdd;
-	if (e.key == "l" && (rightY + toAdd) <= canvas.clientHeight + canvas.offsetTop - right.lengthP + padlelength)
-	rightY += toAdd;
-	if (e.key == "w" && (leftY - toAdd) >= canvas.offsetTop - padlelength)
-	leftY -= toAdd;
-	if (e.key == "s" && (leftY + toAdd) <= canvas.clientHeight + canvas.offsetTop - right.lengthP + padlelength)
-		leftY += toAdd;
+	if (e.key == "o"&& !rightControlTop)
+	{
+		if (rightControlBot)
+		{
+			clearInterval(rightPadleBInterval)
+			rightControlBot = false;
+		}
+		rightControlTop = true;
+		rightPadleTInterval = setInterval(()=>{
+			if ((rightY - toAdd) >= canvas.offsetTop )
+				rightY -= toAdd;
+		}, 1)
+	}
+	if (e.key == "l"  && !rightControlBot)
+	{
+		if (rightControlTop)
+		{
+			clearInterval(rightPadleTInterval)
+			rightControlTop = false;
+		}
+		rightControlBot = true;
+		rightPadleBInterval = setInterval(()=>{
+			if ((rightY + toAdd) <= canvas.clientHeight + canvas.offsetTop - right.lengthP)
+				rightY += toAdd;
+		}, 1)
+	}
+	if (e.key == "w" && !leftControlTop)
+	{
+		console.log("su")
+		if (leftControlBot)
+		{
+			clearInterval(leftPadleBInterval)
+			leftControlBot = false;
+		}
+		leftControlTop = true;
+		leftPadleTInterval = setInterval(()=>{
+			if ((leftY - toAdd) >= canvas.offsetTop)
+				leftY -= toAdd;
+		}, 1)
+	}
+	if (e.key == "s" && !leftControlBot)
+	{
+		console.log("giu")
+		if (leftControlTop)
+		{
+			clearInterval(leftPadleTInterval)
+			leftControlTop = false;
+		}
+		leftControlBot = true;
+		leftPadleBInterval = setInterval(()=>{
+			if ((leftY + toAdd) <= canvas.clientHeight + canvas.offsetTop - right.lengthP)
+				leftY += toAdd;
+		}, 1)
+	}
 })
+
+    window.addEventListener("keyup", (e)=>{
+		if (e.key == "w")
+        {
+            clearInterval(leftPadleTInterval)
+            leftControlTop = false;
+        }
+        if (e.key == "s")
+        {
+            clearInterval(leftPadleBInterval)
+            leftControlBot = false;
+        }
+        if (e.key == "o")
+        {
+            clearInterval(rightPadleTInterval)
+            rightControlTop = false;
+        }
+        if (e.key == "l")
+        {
+            clearInterval(rightPadleBInterval)
+            rightControlBot = false;
+        }
+    })
 
 function animate(currentTime)
 {
